@@ -42,5 +42,17 @@ namespace YourNamespace
                 // var value = reader.GetString("columnName");
             }
         }
+
+        public string ExecuteDirectQuery(string query)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+            connection.Open();
+
+            using var cmd = new MySqlCommand(query, connection);
+            var result = cmd.ExecuteScalar();
+
+            return result?.ToString(); // Return result as a string (or null if result is null)
+            return result?.ToString(); // Return result as a string (or null if result is null)
+        }
     }
 }

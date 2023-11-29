@@ -5,4 +5,18 @@
 }
 
 
-This is the welcome page
+@if (ViewBag.user_type != null && ViewBag.user_type.Contains("a"))
+{
+    <h1>Admin Page</h1>
+}
+else if (ViewBag.user_type != null && ViewBag.user_type.Contains("m"))
+{
+    <h1>Manager Page</h1>
+}
+else if (ViewBag.user_type != null && ViewBag.user_type.Contains("r"))
+{
+    <h1>Registered Users Page</h1>
+}
+
+
+<a href="@Url.Action("Logout", "Home")">Logout</a>
