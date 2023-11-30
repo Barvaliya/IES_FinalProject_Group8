@@ -53,11 +53,30 @@
             @foreach (var row in Model)
             {
                 <tr>
-                    @foreach (var value in row.Values)
+                    @foreach (var column in row)
                     {
-                        <td>@value</td>
+                        <td>
+                            @if (column.Key == "Status" && column.Value.ToString() == "1")
+                        {
+                                <span>Approved</span>
+                        }
+                            else if (column.Key == "Status" && column.Value.ToString() == "0")
+                        {
+                                <span>Rejected</span>
+                        }
+                            else if (column.Key == "Status" && column.Value.ToString() == "2")
+                            {
+                                <span>Submitted</span>
+                            }
+                        else
+                        {
+                            <!-- Handle other columns -->
+                            @column.Value
+                        }</td>
                     }
-                    <td><button class="btn btn-sm btn-success">Edit</button> <button class="btn btn-sm btn-danger">Delete</button></td>
+                    <td><button class="btn btn-sm btn-primary">Details</button> 
+                        <button class="btn btn-sm btn-success">Edit</button> 
+                        <button class="btn btn-sm btn-danger">Delete</button></td>
                 </tr>
             }
         </tbody>

@@ -88,21 +88,25 @@ namespace AuthorizeAuthenticate.Controllers
             }
             ViewBag.user_type = user_type;
             ViewBag.user_name = username;
+
+            string contactQuery = "";
            
             if (user_type == "a")
             {
-                //Administrators can approve / reject and edit/ delete any data.
+                contactQuery = "SELECT * FROM contacts";
             }
             else if (user_type == "r")
             {
-                //Managers can approve or reject contact data.Only approved contacts are visible to users.
+                // Registered users can view all the approved data and can edit/ delete their own data.
+                contactQuery = $"SELECT * FROM contacts where status='1' && creator='{username}'";
             }
             else if (user_type == "m")
             {
-                // Registered users can view all the approved data and can edit/ delete their own data.   
+                //Managers can approve or reject contact data.Only approved contacts are visible to users.
+                contactQuery = "SELECT * FROM contacts";
             }
 
-            var data = dbConnector.FetchDataUsingReader("SELECT * FROM contacts");               
+            var data = dbConnector.FetchDataUsingReader(contactQuery);               
 
             return View(data);
         }
