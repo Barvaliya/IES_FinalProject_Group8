@@ -4,6 +4,68 @@
 @{
 }
 
+@model List<Dictionary<string, object>>
+
+<style>
+    ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 5px;
+        overflow: hidden;
+        background-color: #333;
+    }
+
+    li {
+        float: left;
+    }
+
+        li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+</style>
+
+
+<ul>
+    <li><a href="/home/welcome" style="text-decoration:none;">Contact Manager Application</a></li>
+
+    <li style="float:right!important"><a href="@Url.Action("Logout", "Home")">Logout</a></li>
+    <li style="float:right!important"><a href="javascript:void(0)">@ViewBag.user_name</a></li>
+</ul>
+
+<div class="container">
+
+    <table class="table">
+        <thead>
+            <tr>
+                @foreach (var column in Model.First().Keys)
+                {
+                    <th>@column</th>
+                }
+                <th>Action</th>
+            </tr>
+        
+        </thead>
+        <tbody>
+            @foreach (var row in Model)
+            {
+                <tr>
+                    @foreach (var value in row.Values)
+                    {
+                        <td>@value</td>
+                    }
+                    <td><button class="btn btn-sm btn-success">Edit</button> <button class="btn btn-sm btn-danger">Delete</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>
+
+
 
 @if (ViewBag.user_type != null && ViewBag.user_type.Contains("a"))
 {
@@ -17,6 +79,3 @@ else if (ViewBag.user_type != null && ViewBag.user_type.Contains("r"))
 {
     <h1>Registered Users Page</h1>
 }
-
-
-<a href="@Url.Action("Logout", "Home")">Logout</a>

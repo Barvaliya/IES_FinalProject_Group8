@@ -104,7 +104,10 @@ body {
 
 <div class="login-page">
     <div class="form">
+        <img src="../Views/Home/g.png"  width="50"/>
+        <span>Login</span>
         <form class="login-form" action="@Url.Action("SubmitForm", "Home")">
+            <br />
             <input type="text" placeholder="username" name="username" />
             <input type="password" placeholder="password" name="password" />
             <button type="submit">login</button>
@@ -112,7 +115,6 @@ body {
         </form>
     </div>
 </div>
-
 
 <script>
     $('.message a').click(function () {

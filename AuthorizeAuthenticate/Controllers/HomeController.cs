@@ -1,4 +1,5 @@
 ﻿using AuthorizeAuthenticate.Models;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -6,11 +7,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Owin.Security.Provider;
 using MySqlConnector;
+using System;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Security.Claims;
 using YourNamespace;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+
 
 namespace AuthorizeAuthenticate.Controllers
 {
@@ -41,7 +45,6 @@ namespace AuthorizeAuthenticate.Controllers
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, username),
-                    // Add more claims if needed
                 };
 
                 var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -54,7 +57,7 @@ namespace AuthorizeAuthenticate.Controllers
                 HttpContext.Session.SetString("Username", username);
                 HttpContext.Session.SetString("user_type", user_type);
 
-                return RedirectToAction("Welcome", "Home");                
+                return RedirectToAction("Welcome", "Home");         
             }
             else
             {
@@ -73,13 +76,35 @@ namespace AuthorizeAuthenticate.Controllers
         //[Authorize]
         public IActionResult Welcome()
         {
+            var config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).Build();
+
+            var dbConnector = new DatabaseConnector(config);
+
             string username = HttpContext.Session.GetString("Username");
+            string user_type = HttpContext.Session.GetString("user_type");
             if (string.IsNullOrEmpty(username))
             {
                 return RedirectToAction("Index", "Home");
             }
-            ViewBag.user_type = (HttpContext.Session.GetString("user_type"));
-            return View();
+            ViewBag.user_type = user_type;
+            ViewBag.user_name = username;
+           
+            if (user_type == "a")
+            {
+                //Administrators can approve / reject and edit/ delete any data.
+            }
+            else if (user_type == "r")
+            {
+                //Managers can approve or reject contact data.Only approved contacts are visible to users.
+            }
+            else if (user_type == "m")
+            {
+                // Registered users can view all the approved data and can edit/ delete their own data.   
+            }
+
+            var data = dbConnector.FetchDataUsingReader("SELECT * FROM contacts");               
+
+            return View(data);
         }
 
         private bool IsUserValidAsync(string username, string password)
