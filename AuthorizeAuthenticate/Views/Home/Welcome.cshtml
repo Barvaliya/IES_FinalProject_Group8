@@ -38,6 +38,14 @@
 
 <div class="container">
 
+    @if (!string.IsNullOrEmpty(ViewBag.Message))
+    {
+        <script>
+            alert('Contact Successfully Deleted');
+        </script>
+    }
+
+
     <table class="table">
         <thead>
             <tr>
@@ -55,6 +63,11 @@
                 <tr>
                     @foreach (var column in row)
                     {
+                        
+                        @if (column.Key == "ContactId")
+                        {
+                            <input type="hidden" class="contact-id" value="@column.Value" />
+                        }
                         <td>
                             @if (column.Key == "Status" && column.Value.ToString() == "1")
                         {
@@ -74,15 +87,62 @@
                             @column.Value
                         }</td>
                     }
-                    <td><button class="btn btn-sm btn-primary">Details</button> 
-                        <button class="btn btn-sm btn-success">Edit</button> 
-                        <button class="btn btn-sm btn-danger">Delete</button></td>
+                    <td>
+                       @* <button class="btn btn-sm btn-primary details-btn">Details</button>
+                        <button class="btn btn-sm btn-success edit-btn">Edit</button>
+                        <button class="btn btn-sm btn-danger delete-btn">Delete</button> *@
+                        @if (ViewBag.user_type != null)
+                        {
+                            @if (ViewBag.user_type.Contains("a"))
+                            {
+                                <button type="button" class="btn btn-sm btn-primary details-btn" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                                    Details
+                                </button>
+                                <button class="btn btn-sm btn-success edit-btn">Edit</button>
+                                <button class="btn btn-sm btn-danger delete-btn">Delete</button>
+                            }
+                            else
+                            {
+                                if (ViewBag.user_type.Contains("m"))
+                                {
+                                    <button class="btn btn-sm btn-primary details-btn">Details</button>
+                                }
+                                if (ViewBag.user_type.Contains("r"))
+                                {
+                                    <button class="btn btn-sm btn-primary details-btn">Details</button>
+                                }
+                            }
+                        }
+
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
 
 </div>
+
+
+
+<!-- Modal -->
+<div class="modal" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Contact Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Contact Id : 
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-success approve-btn">Approve</button>
+                <button type="button" class="btn btn-sm btn-danger reject-btn">Reject</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 
@@ -98,3 +158,95 @@ else if (ViewBag.user_type != null && ViewBag.user_type.Contains("r"))
 {
     <h1>Registered Users Page</h1>
 }
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $('.details-btn, .edit-btn, .delete-btn').click(function () {
+            var contactId = $(this).closest('tr').find('.contact-id').val();
+            var action = $(this).text().toLowerCase();
+
+            $.ajax({
+                url: '/Home/ContactId',
+                method: 'POST',
+                data: { contactId: contactId, action: action },
+                success: function (response) {
+                    // Handle success response if needed
+                },
+                error: function (error) {
+                    // Handle errors if any
+                }
+            });
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const detailsButtons = document.querySelectorAll('.details-btn');
+
+        detailsButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const row = button.closest('tr');
+                const contactId = row.querySelector('.contact-id').value;
+                const name = row.cells[1].textContent;
+                const address = row.cells[2].textContent;
+                const city = row.cells[3].textContent;
+                const state = row.cells[4].textContent;
+                const zip = row.cells[5].textContent;
+                const email = row.cells[6].textContent;
+                const status = row.cells[7].querySelector('span').textContent;
+                const creator = row.cells[8].textContent;
+
+                fillModalWithContactInfo(contactId, name, address, city, state, zip, email, status, creator);
+
+                //Open the modal manually after filling with contact details
+                const modal = new bootstrap.Modal(document.getElementById('staticBackdrop'));
+                modal.show();
+            });
+        });
+    });
+
+    function fillModalWithContactInfo(contactId, name, address, city, state, zip, email, status, creator) {
+        const modalTitle = document.querySelector('.modal-title');
+        const modalBody = document.querySelector('.modal-body');
+
+        modalTitle.textContent = `Contact Details - ID: ${contactId}`;
+        modalBody.innerHTML = `Contact Id: ${contactId} <br>
+                               Name: ${name} <br>
+                               Address: ${address} <br>
+                               City: ${city} <br>
+                               State: ${state} <br>
+                               Zip: ${zip} <br>
+                               Email: ${email} <br>
+                               Status: ${status} <br>
+                               Creator: ${creator} <br>`;
+    }
+    $(document).ready(function () {
+    $('.modal-footer').on('click', '.approve-btn, .reject-btn', function () {
+        const modal = $(this).closest('.modal-content');
+        const contactId = modal.find('.modal-body').find('br').first().text().split(': ')[1].trim();
+        const action = $(this).hasClass('approve-btn') ? 'approve' : 'reject';
+
+        $.ajax({
+            type: 'POST',
+            url: '/home/HandleApproval',
+            data: JSON.stringify({ contactId: contactId, action: action }),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (response) {
+                // Handle success response from the controller
+                console.log('Request successful', response);
+                // Update the status in the modal based on the response
+                modal.find('.modal-body').find('br:contains("Status:")').next().text(response.result);
+            },
+            error: function (error) {
+                // Handle error response from the controller
+                console.error('Error occurred', error);
+            }
+        });
+    });
+});
+
+
+
+</script>

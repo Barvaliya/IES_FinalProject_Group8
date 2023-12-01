@@ -16,6 +16,14 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = C:\Users\Balddudehere\Desktop\AuthorizeAuthenticate\AuthorizeAuthenticate
 build_property._RazorSourceGeneratorDebug = 
 
+[C:/Users/Balddudehere/Desktop/AuthorizeAuthenticate/AuthorizeAuthenticate/Views/Home/a.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxhLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Balddudehere/Desktop/AuthorizeAuthenticate/AuthorizeAuthenticate/Views/Home/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Balddudehere/Desktop/AuthorizeAuthenticate/AuthorizeAuthenticate/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 

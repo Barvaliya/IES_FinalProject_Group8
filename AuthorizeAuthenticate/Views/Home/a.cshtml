@@ -1,0 +1,45 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model List<Dictionary<string, object>>
+
+<style>
+    ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 5px;
+        overflow: hidden;
+        background-color: #333;
+    }
+
+    li {
+        float: left;
+    }
+
+        li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+</style>
+
+
+<ul>
+    <li><a href="/home/welcome" style="text-decoration:none;">Contact Manager Application</a></li>
+
+    <li style="float:right!important"><a href="@Url.Action("Logout", "Home")">Logout</a></li>
+    <li style="float:right!important"><a href="javascript:void(0)">@ViewBag.user_name</a></li>
+</ul>
+
+<div class="container">
+
+    Details Page
+
+</div>
+
+

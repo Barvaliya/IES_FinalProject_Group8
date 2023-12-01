@@ -105,13 +105,106 @@ namespace AuthorizeAuthenticate.Controllers
                 //Managers can approve or reject contact data.Only approved contacts are visible to users.
                 contactQuery = "SELECT * FROM contacts";
             }
+            try
+            {
+                var Message = TempData["Message"] as string;
+                ViewBag.Message = Message;
+            }
+            catch(Exception e) 
+            {
+                Console.WriteLine("message not passed.");
+            }           
 
-            var data = dbConnector.FetchDataUsingReader(contactQuery);               
-
+            var data = dbConnector.FetchDataUsingReader(contactQuery);
             return View(data);
         }
 
-        private bool IsUserValidAsync(string username, string password)
+        [HttpPost]
+        public ActionResult ContactId(string contactId, string action)
+        {
+            // Use the contactId and action variables in your controller logic
+            Console.WriteLine("ContactId received in controller: " + contactId);
+            Console.WriteLine("Action received in controller: " + action);
+
+            string query = "";
+
+            var config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).Build();
+
+            var dbConnector = new DatabaseConnector(config);
+
+            if (action == "delete") {
+                query = $"DELETE FROM contacts WHERE ContactId = {contactId};";
+          
+                if (dbConnector.GetCount(query)> 0) {
+                    TempData["Message"] = "Operation was successful!";
+                    return RedirectToAction("Welcome", "Home");
+                }
+                else
+                {
+
+                }                
+            }
+            else if (action == "edit")
+            {
+
+            }
+            else if (action == "details")
+            {
+                query = $"select * from contacts where ContactId = {contactId};";
+                var data = dbConnector.FetchDataUsingReader(query);
+                TempData["contactId"] = contactId;
+            }
+            return RedirectToAction("Index");
+        }
+
+        //public IActionResult Detail() {
+        //Console.WriteLine("At Details");
+        //var config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).Build();
+
+        //var dbConnector = new DatabaseConnector(config);
+        //string id = TempData["contactId"].ToString();
+        //string query = $"select * from contacts where ContactId = {id};";
+        //var data = dbConnector.FetchDataUsingReader(query);
+        //return View();
+        //}
+
+        [HttpPost]
+        public ActionResult HandleApproval(int contactId, string action)
+        {
+            Console.WriteLine("HandleApproval ma pugyo");
+           var config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).Build();
+
+            var dbConnector = new DatabaseConnector(config);
+            // Handle the received data here
+            if (action == "approve")
+            {
+                Console.WriteLine("Approved ma pugyo");
+                if (dbConnector.GetCount($"UPDATE contacts SET status = 1 WHERE contactid = {contactId};") > 0)
+                {
+                    return RedirectToAction("home", "welcome");
+                }
+                Console.WriteLine("Approved ko query run bhayena");
+                return Json(new { success = false, message = $"Contact ID {contactId} has not been approved" });
+            }
+            else if (action == "reject")
+            {
+                Console.WriteLine("Rejected ma pugyo");
+                if (dbConnector.GetCount($"UPDATE contacts SET status = 0 WHERE contactid = {contactId};") > 0)
+                {
+                    return RedirectToAction("home", "welcome");
+                }
+                Console.WriteLine("Rejected ko query run bhayena");
+                return Json(new { success = false, message = $"Contact ID {contactId} has not been rejected" });
+            }
+            else
+            {
+                Console.WriteLine(action);
+                Console.WriteLine(contactId);
+                return Json(new { success = false, message = "Invalid action" });
+            }
+        }
+
+    private bool IsUserValidAsync(string username, string password)
         {
             var config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).Build();
 
