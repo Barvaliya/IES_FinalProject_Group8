@@ -14,6 +14,7 @@ using System.Security.Claims;
 using YourNamespace;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using System.Web;
 
 
 namespace AuthorizeAuthenticate.Controllers
@@ -157,17 +158,6 @@ namespace AuthorizeAuthenticate.Controllers
             return RedirectToAction("Index");
         }
 
-        //public IActionResult Detail() {
-        //Console.WriteLine("At Details");
-        //var config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).Build();
-
-        //var dbConnector = new DatabaseConnector(config);
-        //string id = TempData["contactId"].ToString();
-        //string query = $"select * from contacts where ContactId = {id};";
-        //var data = dbConnector.FetchDataUsingReader(query);
-        //return View();
-        //}
-
         [HttpPost]
         public ActionResult HandleApproval(int contactId, string action)
         {
@@ -226,5 +216,66 @@ namespace AuthorizeAuthenticate.Controllers
                 return false;
             }        
         }
+
+        public IActionResult Form() {
+            string username = HttpContext.Session.GetString("Username");
+            string user_type = HttpContext.Session.GetString("user_type");
+
+            ViewBag.user_type = user_type;
+            ViewBag.user_name = username;
+
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult HandleForm(Contact contact) {
+
+            // Process the submitted contact data (contact.Name, contact.Address, etc.)
+            // Save to the database, perform actions, etc.
+            Console.WriteLine(contact.Name);
+
+             string username = HttpContext.Session.GetString("Username");
+
+            var config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).Build();
+
+            var dbConnector = new DatabaseConnector(config);
+
+            string query = $"INSERT INTO contacts  (ContactId, Name, Address, City, State, Zip, Email, Status, creator) VALUES (NULL, '{contact.Name}', '{contact.Address}', '{contact.City}', '{contact.State}' ,'{contact.Zip}', '{contact.Email}', '2' , '{username}')";
+
+            if(dbConnector.GetCount(query)>0){
+                return RedirectToAction("Welcome", "Home");
+            }
+            ViewBag.message = "Invalid Input. Please Check."; 
+            return RedirectToAction("Form", "Home");        
+        }
+        
+        public IActionResult EditForm([FromBody] Dictionary<string, string> requestData)
+        {
+            /*var location = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}{Request.QueryString}");
+
+            var url = location.AbsoluteUri.ToString();
+
+            //string param1 = HttpUtility.ParseQueryString(url.Query).Get("id");
+
+            string[] parts = url.Split('=');
+
+            // Retrieve the value after the equals sign
+            string valueAfterEquals = parts[parts.Length - 1];
+
+            Console.WriteLine(valueAfterEquals);*/
+
+            if (requestData != null && requestData.ContainsKey("contactId"))
+            {
+                string contactId = requestData["contactId"];
+                // Perform actions with the received contactId, such as updating data, etc.
+                // Example: UpdateContact(contactId);
+                Console.WriteLine(contactId);
+                return RedirectToAction("Form", "Home");
+
+            }
+
+            return RedirectToAction("Form", "Home");
+        }
+
     }
 }

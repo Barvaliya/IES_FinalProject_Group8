@@ -38,6 +38,8 @@
 
 <div class="container">
 
+    <a href="/home/Form">Create New Contact</a>
+
     @if (!string.IsNullOrEmpty(ViewBag.Message))
     {
         <script>
@@ -247,6 +249,36 @@ else if (ViewBag.user_type != null && ViewBag.user_type.Contains("r"))
     });
 });
 
+    $(document).ready(function () {
+        // Listen for click events on edit buttons
+        $('.edit-btn').click(function () {
+            // Find the closest row containing the data
+            const row = $(this).closest('tr');
+
+            // Get the ContactId value from the hidden input in the same row
+            const contactId = row.find('.contact-id').val();
+
+            // Prepare the data to send to the controller
+            const data = {
+                contactId: contactId,
+                // Include other data if needed
+            };
+
+            // Send data to the controller using AJAX (you'll need to specify the controller endpoint)
+            $.ajax({
+                url: '/home/form',
+                method: 'GET', // Adjust the method as per your need (POST, GET, etc.)
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    // Handle the success response from the controller if needed
+                },
+                error: function (error) {
+                    // Handle any errors that occur during the AJAX request
+                }
+            });
+        });
+    });
 
 
 </script>
