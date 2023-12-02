@@ -34,6 +34,10 @@
 
     <li style="float:right!important"><a href="@Url.Action("Logout", "Home")">Logout</a></li>
     <li style="float:right!important"><a href="javascript:void(0)">@ViewBag.user_name</a></li>
+    @if (ViewBag.user_type != null && ViewBag.user_type.Contains("a"))
+    {
+        <li style="float:right!important"><a href="/home/user">Create User</a></li>
+    }
 </ul>
 
 <div class="container">
@@ -111,6 +115,11 @@
                                 }
                                 if (ViewBag.user_type.Contains("r"))
                                 {
+                                    @if (Model.Any(row => row.ContainsKey("Creator") && row["Creator"].ToString() == ViewBag.user_name))
+                                    {
+                                        <button class="btn btn-sm btn-success edit-btn">Edit</button>
+                                    }
+                                    
                                     <button class="btn btn-sm btn-primary details-btn">Details</button>
                                 }
                             }
@@ -137,17 +146,21 @@
             <div class="modal-body">
                 Contact Id : 
             </div>
-            <div class="modal-footer">
+            @if (ViewBag.user_type != null && !ViewBag.user_type.Contains("r"))
+            {
+
+                <div class="modal-footer">
                 <button type="button" class="btn btn-sm btn-success approve-btn">Approve</button>
                 <button type="button" class="btn btn-sm btn-danger reject-btn">Reject</button>
             </div>
+            }
         </div>
     </div>
 </div>
 
 
 
-
+@*
 @if (ViewBag.user_type != null && ViewBag.user_type.Contains("a"))
 {
     <h1>Admin Page</h1>
@@ -160,7 +173,7 @@ else if (ViewBag.user_type != null && ViewBag.user_type.Contains("r"))
 {
     <h1>Registered Users Page</h1>
 }
-
+*@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 

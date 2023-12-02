@@ -1,0 +1,61 @@
+﻿@model List<Dictionary<string, object>>
+
+<style>
+    ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 5px;
+        overflow: hidden;
+        background-color: #333;
+    }
+
+    li {
+        float: left;
+    }
+
+        li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+</style>
+
+
+<ul>
+    <li><a href="/home/welcome" style="text-decoration:none;">Contact Manager Application</a></li>
+
+    <li style="float:right!important"><a href="@Url.Action("Logout", "Home")">Logout</a></li>
+    <li style="float:right!important"><a href="javascript:void(0)">@ViewBag.user_name</a></li>
+    @if (ViewBag.user_type != null && ViewBag.user_type.Contains("a"))
+    {
+        <li style="float:right!important"><a href="/home/user">Create User</a></li>
+    }
+</ul>
+
+<div class="container">
+    <h1>User Create</h1>
+
+    <form action="/Home/HandleUsers" method="post">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="exampleInputState" class="form-label">Username</label>
+                <input type="text" class="form-control" id="InputState" name="user_name">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="exampleInputCity" class="form-label">Password</label>
+                <input type="password" class="form-control" id="InputCity" name="password">
+            </div>
+            <div class="col-md-2 mb-3">
+                <label for="exampleInputZip" class="form-label">User Role</label>
+                @Html.DropDownList("user_role", ViewBag.UserRoles as IEnumerable<SelectListItem>, new { @class = "form-control", name = "user_role" })
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+
+</div>
+
+

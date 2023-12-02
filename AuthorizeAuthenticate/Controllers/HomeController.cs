@@ -15,7 +15,7 @@ using YourNamespace;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using System.Web;
-
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace AuthorizeAuthenticate.Controllers
 {
@@ -147,6 +147,12 @@ namespace AuthorizeAuthenticate.Controllers
             }
             else if (action == "edit")
             {
+                //get the row with the certain contact detail and pass it to a method
+                query = $"select * from contacts where ContactId={contactId}";
+                var data = dbConnector.ExecuteDirectQuery(query);
+                TempData["data"] = data;
+                return RedirectToAction("Forms", "Home");
+
 
             }
             else if (action == "details")
@@ -224,6 +230,14 @@ namespace AuthorizeAuthenticate.Controllers
             ViewBag.user_type = user_type;
             ViewBag.user_name = username;
 
+            try {
+                var myData = TempData["data"] as string;
+                ViewBag.MyData = myData;
+            }
+            catch(Exception e) {
+                Console.WriteLine("Data not found");
+            }
+
             return View();
         }
 
@@ -248,13 +262,11 @@ namespace AuthorizeAuthenticate.Controllers
             ViewBag.message = "Invalid Input. Please Check."; 
             return RedirectToAction("Form", "Home");        
         }
-        
+
+        [HttpGet("form")]
         public IActionResult EditForm([FromBody] Dictionary<string, string> requestData)
         {
-            /*var location = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}{Request.QueryString}");
-
-            var url = location.AbsoluteUri.ToString();
-
+            /*
             //string param1 = HttpUtility.ParseQueryString(url.Query).Get("id");
 
             string[] parts = url.Split('=');
@@ -263,6 +275,10 @@ namespace AuthorizeAuthenticate.Controllers
             string valueAfterEquals = parts[parts.Length - 1];
 
             Console.WriteLine(valueAfterEquals);*/
+
+            //var location = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}{Request.QueryString}");
+
+            //var url = location.AbsoluteUri.ToString();
 
             if (requestData != null && requestData.ContainsKey("contactId"))
             {
@@ -277,5 +293,47 @@ namespace AuthorizeAuthenticate.Controllers
             return RedirectToAction("Form", "Home");
         }
 
+        public IActionResult User()
+        {
+            string username = HttpContext.Session.GetString("Username");
+            string user_type = HttpContext.Session.GetString("user_type");
+
+            ViewBag.user_type = user_type;
+            ViewBag.user_name = username;
+
+            var roles = new List<SelectListItem>
+            {
+                new SelectListItem { Text = "Admin", Value = "a" },
+                new SelectListItem { Text = "Manager", Value = "m" },
+                new SelectListItem { Text = "Registered User", Value = "r" }
+            };
+
+            // Pass the roles list to the view
+            ViewBag.UserRoles = roles;
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult HandleUsers(Users user)
+        {
+            Console.WriteLine("Why not here?");
+            Console.WriteLine(user.user_role);
+            Console.WriteLine(user.user_name);
+
+            string username = HttpContext.Session.GetString("Username");
+
+            var config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).Build();
+
+            var dbConnector = new DatabaseConnector(config);
+
+            string query = $"INSERT INTO users  (user_id, user_name, pasword, user_role) VALUES (NULL, '{user.user_name}', '{user.password}', '{user.user_role}')";
+
+            if (dbConnector.GetCount(query) > 0)
+            {
+                return RedirectToAction("Welcome", "Home");
+            }
+            ViewBag.message = "Invalid Input. Please Check.";
+            return RedirectToAction("User", "Home");
+        }
     }
 }
